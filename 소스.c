@@ -291,72 +291,69 @@ int log_in()
 	return MAXMEMBER;
 }
 
-/*void rainking_input(int score, char name) { //랭크 입력
-FILE *rank;
 
-rank = fopen("ranking.txt", "w+");
+void getpassword(char *buf)
+{
+	int i = 0;
+	char ch;
 
-if (rank == NULL) {
-puts("Rank와 연결이 되지 않습니다.");
-}
-for (int i = 0; i < MAXMEMBER; i++) {    //이것도 손봐야됨
-fprintf(rank, "%s %d\n", info[i].name, info[i].score);
-}
-fclose(rank);
-
-}*/
-
-int compareword(char *key_p) {//입력받은 단어가 맞는지 확인
-	int i;
-	for (i = 0; i < MAXWORD; i++) {
-		if (!strcmp(words_out[i], key_p)) {
-			info[memcnt].score += 10;
-			gotoxy(loc[i].x, loc[i].y);
-			printf("          ");
-			loc[i].s = disable;
+	fflush(stdin);
+	while (1) {
+		ch = getch();
+		if (ch == '\r') {
+			buf[i] = '\0';
+			break;
 		}
+		else if (ch == '\b') {
+			printf("%s", "\b \b");   // 백스페이스인 경우 한글자 지우기
+			buf[--i] = '\0';
+			continue;
+		}
+
+		buf[i++] = ch;
+		putchar('*');
 	}
-	return info[memcnt].score;
 }
 
-unsigned int WINAPI key(void *arg) { //스레드
-	int score;
-	int location = 0;
-	char key2[21] = { 0 };
-	char *key_p;
-	key_p = key2;
-	while (1) {  //키입력
-		int key = getch();
-		if ((key >= 33 && key <= 127) && location < 20) {
-			gotoxy(23 + location, 26);
-			printf("%c", key);
-			key2[location++] = key;
-			key2[location] = '\0';
-			if (location > 20)
-				location = 20;
-		}
-		else if (key == 8) {
-			if (location > 0) {
-				key2[location--] = key;
-				key2[location] = '\0';
-				gotoxy(23 + location, 26);
-				printf(" ");
-			}
-		}
-		else if (key == 13) {
-			compareword(key2);
-			location = 0;
-			gotoxy(23, 26);
-			printf("                      ");
-		}
-	}
-	return info[memcnt].score;
+
+void game_main(int login) { //디자인 불러
+sub:
+	gamebasic_design();
+	start(login);
+	printword(login);
+	if (info[login].level != 5) goto sub;
+	//ranking(info[login].score,info[login].name);       // 랭킹 등록하기 이거 해결점;;   
+	//ranking_output();
+	//clear창 만들기 이후에 메인화면으로 돌아간다.
 }
+//아이디를 찾는 함수
+int findID(char *tagetid) {
+	for (int i = 0; i < memcnt; i++) {
+		if (!strcmp(info[i].id, tagetid))
+			return i; //아이디를 찾아서 인덱스를 리턴
+	}
+	return MAXMEMBER; //아이디를 못찾은경우
+}
+
+
+void start(int login)
+{
+	for (int i = 0; i < 3; i++) // 시작준비    불필요한 printf 반복
+	{
+		gotoxy(10, 12);
+		printf("LEVEL :%d", info[login].level);
+		gotoxy(10, 13);
+		printf("%d초 후에 시작합니다. 준비해 주세요!", 3 - i);
+		Sleep(1000);
+	}
+}
+
 
 int printword(int login) {
 	int printindex = 0, i;
 	gamebasic_design();
-	Thread = (HANDLE)_beginthreadex(NULL, 0, key, (void*)NULL, 0, (unsigned*)&ThreadID);
+	
+	Thread = (HANDLE)_beginthreadex(NULL, 0, key, (void*)NULL, 0, (unsigned*)&ThreadID);  //thread 사용
 	fileread(login);
 	while (1) { //레벨 업 할때 까지 반복
 		if (printindex >= word_count)
@@ -393,6 +390,8 @@ int printword(int login) {
 	TerminateThread(Thread, 0);
 	return login;
 }
+
+
 int fileread(int login) // 파일 읽는 함수
 {
 	char buf[10], i = 0;
@@ -436,46 +435,73 @@ int fileread(int login) // 파일 읽는 함수
 
 	//sufle 필요
 }
-void game_main(int login) { //디자인 불러
-sub:
-	gamebasic_design();
-	start(login);
-	printword(login);
-	if (info[login].level != 5) goto sub;
-	//ranking(info[login].score,info[login].name);       // 랭킹 등록하기 이거 해결점;;   
-	//ranking_output();
-	//clear창 만들기 이후에 메인화면으로 돌아간다.
-}
-//아이디를 찾는 함수
-int findID(char *tagetid) {
-	for (int i = 0; i < memcnt; i++) {
-		if (!strcmp(info[i].id, tagetid))
-			return i; //아이디를 찾아서 인덱스를 리턴
-	}
-	return MAXMEMBER; //아이디를 못찾은경우
-}
-void getpassword(char *buf)
-{
-	int i = 0;
-	char ch;
+/********************************************************************************************************************************/
 
-	fflush(stdin);
-	while (1) {
-		ch = getch();
-		if (ch == '\r') {
-			buf[i] = '\0';
-			break;
-		}
-		else if (ch == '\b') {
-			printf("%s", "\b \b");   // 백스페이스인 경우 한글자 지우기
-			buf[--i] = '\0';
-			continue;
-		}
+/*void rainking_input(int score, char name) { //랭크 입력
+FILE *rank;
 
-		buf[i++] = ch;
-		putchar('*');
-	}
+rank = fopen("ranking.txt", "w+");
+
+if (rank == NULL) {
+puts("Rank와 연결이 되지 않습니다.");
 }
+for (int i = 0; i < MAXMEMBER; i++) {    //이것도 손봐야됨
+fprintf(rank, "%s %d\n", info[i].name, info[i].score);
+}
+fclose(rank);
+
+}*/
+
+/*사용되질않는 왜존재하는지 모르는함수 */
+
+
+unsigned int WINAPI key(void *arg) { //스레드
+	int score;
+	int location = 0;
+	char key2[21] = { 0 };
+	char *key_p;
+	key_p = key2;
+	while (1) {  //키입력
+		int key = getch();
+		if ((key >= 33 && key <= 127) && location < 20) {
+			gotoxy(23 + location, 26);
+			printf("%c", key);
+			key2[location++] = key;
+			key2[location] = '\0';
+			if (location > 20)
+				location = 20;
+		}
+		else if (key == 8) {
+			if (location > 0) {
+				key2[location--] = key;
+				key2[location] = '\0';
+				gotoxy(23 + location, 26);
+				printf(" ");
+			}
+		}
+		else if (key == 13) {
+			compareword(key2);
+			location = 0;
+			gotoxy(23, 26);
+			printf("                      ");
+		}
+	}
+	return info[memcnt].score;
+}
+int compareword(char *key_p) {//입력받은 단어가 맞는지 확인
+	int i;
+	for (i = 0; i < MAXWORD; i++) {
+		if (!strcmp(words_out[i], key_p)) {
+			info[memcnt].score += 10;
+			gotoxy(loc[i].x, loc[i].y);
+			printf("          ");
+			loc[i].s = disable;
+		}
+	}
+	return info[memcnt].score;
+}
+
+
 int lv(int login) { // 레벨 함수
 	if (info[login].score > MAXSCORE) {
 		if (info[login].level < MAXLEVEL) {
@@ -487,17 +513,7 @@ int lv(int login) { // 레벨 함수
 	}
 	return 0;
 }
-void start(int login)
-{
-	for (int i = 0; i < 3; i++) // 시작준비
-	{
-		gotoxy(10, 12);
-		printf("LEVEL :%d", info[login].level);
-		gotoxy(10, 13);
-		printf("%d초 후에 시작합니다. 준비해 주세요!", 3 - i);
-		Sleep(1000);
-	}
-}
+
 
 void mainscreen_design() {
 	system("mode con: cols=100 lines=30"); //#include <stdlib.h> 화면크기조정
