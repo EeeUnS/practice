@@ -1,4 +1,4 @@
-﻿//github사용용
+﻿//github사용용123ㅍ123
 
 #pragma warning(disable:4996)
 #include <stdio.h>
@@ -63,6 +63,105 @@ char words_out[MAXWORD][10];
 struct word loc[MAXWORD];
 int word_count = 0;
 
+
+
+int main()
+{
+	main_screen();//메인스크린 호출
+}
+
+
+int main_screen()
+{
+	int login = MAXMEMBER; // 현재 로그인된 사용자 정보초기화
+	while (1)
+	{
+		//struct member info[100]; //100가입할수있게함
+		mainscreen_design();
+		if (login == MAXMEMBER) { //로그인이 안된상태
+			int i;
+			gotoxy(40, 20);
+			printf("1. 회원가입\n");
+			gotoxy(40, 21);
+			printf("2. 로그인\n");
+			gotoxy(40, 22);
+			printf("3. 랭킹확인\n");
+			gotoxy(40, 23);
+			printf("4. 종료\n");
+			gotoxy(37, 24);
+			printf("번호를 입력하시오 : ");
+			scanf("%d", &i);
+			printf("\n");
+			switch (i)
+			{
+			case 1:
+				join_member();//회원가입으로이동
+				break;
+
+			case 2:
+				login = log_in(); //로그인으로 이동
+				break;
+			case 3:
+				break;
+
+			case 4:
+				alramscreen_design();
+				printf("프로그램이 종료됩니다 ");
+				gotoxy(10, 6);
+				exit(1);
+				break;
+
+			default:
+				alramscreen_design();
+				printf("다시 입력해 주십시오.");
+				Sleep(1000); //딜레이
+				system("cls");
+				break;
+			}
+		}
+		else { //로그인이 된상태 login 변수에 로그인된 사용자정보가 저장되어있음
+			  //디자인 필요
+			gotoxy(37, 19);
+			printf("%s님 반갑습니다.\n", info[login].name);
+			gotoxy(40, 20);
+			printf("1. 게임시작\n");
+			gotoxy(40, 21);
+			printf("2. 회원정보확인\n");
+			gotoxy(40, 22);
+			printf("3. 랭킹확인\n");
+			gotoxy(40, 23);
+			printf("4. 로그아웃\n");
+			gotoxy(37, 24);
+			printf("번호를 입력하시오 : ");
+			int i;
+			scanf("%d", &i);
+			printf("\n");
+			switch (i)
+			{
+			case 1:
+				game_main(login);
+				break;
+			case 2:
+				//profile(login);
+				break;
+			case 3:
+				//Rank(login);
+				break;
+			case 4:
+				gotoxy(40, 25);
+				printf("로그아웃 중입니다...");
+				login = MAXMEMBER;
+				Sleep(1000);
+				system("cls");
+				break;
+			default:
+				printf("다시 입력해 주십시오.");
+				Sleep(1000); //딜레이
+				system("cls");
+			}
+		}
+	}
+}
 
 
 /*void rainking_input(int score, char name) { //랭크 입력
@@ -224,132 +323,6 @@ void gotoxy(int x, int y) //커서 보내는 함수
 {
 	COORD Pos = { x,y };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
-}
-void gamebasic_design()
-{
-
-	system("mode con: cols=100 lines=30"); //#include <stdlib.h> 화면크기조정
-	printf("==================================================================================================\n");
-	printf("|                                                   ll                                           |\n");
-	printf("|                                                   ll    MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM   |\n");
-	printf("|                                                   ll    MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM   |\n");
-	printf("|                                                   ll    MMM$$$$$$$$$$$$$8DDDDDDDDDNNNNNNNNNN   |\n");
-	printf("|                                                   ll    MMM$$$$$$8888DDDDDDDDDNNNNNNNNNNMMMN   |\n");
-	printf("|                                                   ll    MMM$$$$ -------------------- NNNNMMN   |\n");
-	printf("|                                                   ll    MMM$$$$I MM   M     M   MM  INNNNNNN   |\n");
-	printf("|                                                   ll    MMM$$$$I MM   M     M  M M  INMNMNNN   |\n");
-	printf("|                                                   ll    MMMZZ$$I MM    M   M     M  INNNNNNN   |\n");
-	printf("|                                                   ll    MMMZZZZI MM     M M      M  INNNMMMM   |\n");
-	printf("|                                                   ll    MMMZZZZI MMMMM   M     MMMM INNNNNNN   |\n");
-	printf("|                                                   ll    MMMZZZZ -------------------- DNNNNNN   |\n");
-	printf("|                                                   ll    MMMZZZZZDDDDDDNNNNNNNNMMMNNNNNNMMMMM   |\n");
-	printf("|                                                   ll    MMMOZZZZZZZZZZDDDDDDDNNNNNNNNNMMMMMM   |\n");
-	printf("|                                                   ll    MMMOOOOOZZZZZDDDNNNNNNNNNNMMMMMMMMMM   |\n");
-	printf("|                                                   ll    MMMOOOOOOOOOOZODDDDDNNNNNNNNNMMMMMMM   |\n");
-	printf("|                                                   ll    MMMOOOOOOOODDDDNNNNNNNNNNNMMMMMMMMMM   |\n");
-	printf("|                                                   ll                MMMMMMMMMMMM               |\n");
-	printf("|                                                   ll               MMMMMMMMMMMMMM              |\n");
-	printf("|                                                   ll            8NDMMMMMMMMMMMMMMDDN           |\n");
-	printf("|                                                   ll       88DDDDDDMMMMMMMMMMMMMMNDDDDDD8      |\n");
-	printf("|                                                   ll     ZNNNNMMMNNNMNNNNNNNNMMMMNMMMMMMMNM    |\n");
-	printf("|                                                   ll                                           |\n");
-	printf("|ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ ll ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ|\n");
-	printf("|                                                   ll                                           |\n");
-	printf("|            키 입력 :                              ll           점수 :                          |\n");
-	printf("|                                                   ll                                           |\n");
-	printf("==================================================================================================\n");
-
-}
-int main_screen()
-{
-	int login = MAXMEMBER; // 현재 로그인된 사용자 정보초기화
-	while (1)
-	{
-		//struct member info[100]; //100가입할수있게함
-		mainscreen_design();
-		if (login == MAXMEMBER) { //로그인이 안된상태
-			int i;
-			gotoxy(40, 20);
-			printf("1. 회원가입\n");
-			gotoxy(40, 21);
-			printf("2. 로그인\n");
-			gotoxy(40, 22);
-			printf("3. 랭킹확인\n");
-			gotoxy(40, 23);
-			printf("4. 종료\n");
-			gotoxy(37, 24);
-			printf("번호를 입력하시오 : ");
-			scanf("%d", &i);
-			printf("\n");
-			switch (i)
-			{
-			case 1:
-				join_member();//회원가입으로이동
-				break;
-
-			case 2:
-				login = log_in(); //로그인으로 이동
-				break;
-			case 3:
-				break;
-
-			case 4:
-				alramscreen_design();
-				printf("프로그램이 종료됩니다 ");
-				gotoxy(10, 6);
-				exit(1);
-				break;
-
-			default:
-				alramscreen_design();
-				printf("다시 입력해 주십시오.");
-				Sleep(1000); //딜레이
-				system("cls");
-				break;
-			}
-		}
-		else { //로그인이 된상태 login 변수에 로그인된 사용자정보가 저장되어있음
-			  //디자인 필요
-			gotoxy(37, 19);
-			printf("%s님 반갑습니다.\n", info[login].name);
-			gotoxy(40, 20);
-			printf("1. 게임시작\n");
-			gotoxy(40, 21);
-			printf("2. 회원정보확인\n");
-			gotoxy(40, 22);
-			printf("3. 랭킹확인\n");
-			gotoxy(40, 23);
-			printf("4. 로그아웃\n");
-			gotoxy(37, 24);
-			printf("번호를 입력하시오 : ");
-			int i;
-			scanf("%d", &i);
-			printf("\n");
-			switch (i)
-			{
-			case 1:
-				game_main(login);
-				break;
-			case 2:
-				//profile(login);
-				break;
-			case 3:
-				//Rank(login);
-				break;
-			case 4:
-				gotoxy(40, 25);
-				printf("로그아웃 중입니다...");
-				login = MAXMEMBER;
-				Sleep(1000);
-				system("cls");
-				break;
-			default:
-				printf("다시 입력해 주십시오.");
-				Sleep(1000); //딜레이
-				system("cls");
-			}
-		}
-	}
 }
 void join_member()//회원가입  //전역변수 info를 사용함
 {
@@ -558,7 +531,38 @@ void alramscreen_design() {
 
 }
 
-int main()
+void gamebasic_design()
 {
-	main_screen();//메인스크린 호출
+
+	system("mode con: cols=100 lines=30"); //#include <stdlib.h> 화면크기조정
+	printf("==================================================================================================\n");
+	printf("|                                                   ll                                           |\n");
+	printf("|                                                   ll    MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM   |\n");
+	printf("|                                                   ll    MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM   |\n");
+	printf("|                                                   ll    MMM$$$$$$$$$$$$$8DDDDDDDDDNNNNNNNNNN   |\n");
+	printf("|                                                   ll    MMM$$$$$$8888DDDDDDDDDNNNNNNNNNNMMMN   |\n");
+	printf("|                                                   ll    MMM$$$$ -------------------- NNNNMMN   |\n");
+	printf("|                                                   ll    MMM$$$$I MM   M     M   MM  INNNNNNN   |\n");
+	printf("|                                                   ll    MMM$$$$I MM   M     M  M M  INMNMNNN   |\n");
+	printf("|                                                   ll    MMMZZ$$I MM    M   M     M  INNNNNNN   |\n");
+	printf("|                                                   ll    MMMZZZZI MM     M M      M  INNNMMMM   |\n");
+	printf("|                                                   ll    MMMZZZZI MMMMM   M     MMMM INNNNNNN   |\n");
+	printf("|                                                   ll    MMMZZZZ -------------------- DNNNNNN   |\n");
+	printf("|                                                   ll    MMMZZZZZDDDDDDNNNNNNNNMMMNNNNNNMMMMM   |\n");
+	printf("|                                                   ll    MMMOZZZZZZZZZZDDDDDDDNNNNNNNNNMMMMMM   |\n");
+	printf("|                                                   ll    MMMOOOOOZZZZZDDDNNNNNNNNNNMMMMMMMMMM   |\n");
+	printf("|                                                   ll    MMMOOOOOOOOOOZODDDDDNNNNNNNNNMMMMMMM   |\n");
+	printf("|                                                   ll    MMMOOOOOOOODDDDNNNNNNNNNNNMMMMMMMMMM   |\n");
+	printf("|                                                   ll                MMMMMMMMMMMM               |\n");
+	printf("|                                                   ll               MMMMMMMMMMMMMM              |\n");
+	printf("|                                                   ll            8NDMMMMMMMMMMMMMMDDN           |\n");
+	printf("|                                                   ll       88DDDDDDMMMMMMMMMMMMMMNDDDDDD8      |\n");
+	printf("|                                                   ll     ZNNNNMMMNNNMNNNNNNNNMMMMNMMMMMMMNM    |\n");
+	printf("|                                                   ll                                           |\n");
+	printf("|ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ ll ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ|\n");
+	printf("|                                                   ll                                           |\n");
+	printf("|            키 입력 :                              ll           점수 :                          |\n");
+	printf("|                                                   ll                                           |\n");
+	printf("==================================================================================================\n");
+
 }
