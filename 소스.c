@@ -8,6 +8,8 @@
 #include <windows.h>//커서위치
 #include <conio.h>//sleep함수 포함
 #include<time.h>//rand함수를 제대로 하기위함
+
+
 #define MAXMEMBER 100  //최대 100명
 #define MAXSCORE 30
 #define MAXLEVEL 5
@@ -44,7 +46,7 @@ void ranking_output(void);
 void ranking_input(void);
 int fileread(int); //파일 읽는함수
 void game_main(int);
-void gotoxy(int, int);
+void gotoxy(int, int); //커서 보내는 함수
 void gamebasic_design(); //게임화면 기본 디자인
 int main_screen(); //메인 인터페이스
 void join_member(); //회원가입 (회원정보)
@@ -57,7 +59,9 @@ void mainscreen_design();//메인화면 디자인
 void alramscreen_design();//알람 디자인
 void rainking_design();//랭킹 디자인
 int printword(int);
+
 int memcnt = 0; //사람수
+
 struct member info[MAXMEMBER]; //회원정보 저장 배열 생성
 char words_out[MAXWORD][10];
 struct word loc[MAXWORD];
@@ -131,7 +135,9 @@ int main_screen()
 			printf("3. 랭킹확인\n");
 			gotoxy(40, 23);
 			printf("4. 로그아웃\n");
-			gotoxy(37, 24);
+			gotoxy(40, 24);
+			printf("5. 종료\n");
+			gotoxy(37, 25);
 			printf("번호를 입력하시오 : ");
 			int i;
 			scanf("%d", &i);
@@ -154,6 +160,12 @@ int main_screen()
 				Sleep(1000);
 				system("cls");
 				break;
+			case 5:
+				alramscreen_design();
+				printf("프로그램이 종료됩니다 ");
+				gotoxy(10, 6);
+				exit(1);
+				break;
 			default:
 				printf("다시 입력해 주십시오.");
 				Sleep(1000); //딜레이
@@ -163,6 +175,121 @@ int main_screen()
 	}
 }
 
+
+void gotoxy(int x, int y) //커서 보내는 함수
+{
+	COORD Pos = { x,y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
+}
+
+
+void join_member()//회원가입  //전역변수 info를 사용함
+{
+	//회원가입인원수가 100명 이하일때
+	if (memcnt < MAXMEMBER) 
+	{
+		alramscreen_design();
+		printf("이름을 입력하시오 : ");
+		scanf("%s", info[memcnt].name); //-> i대신 memcnt
+		if ((*info[memcnt].name >= 33) && (*info[memcnt].name <= 127))  // ?????
+		{
+			alramscreen_design();
+		}
+		printf("성별을 입력하시오(남성/여성) : ");
+		scanf("%s", info[memcnt].sex);
+
+		alramscreen_design();
+		printf("나이를 입력하시오 : ");
+		scanf("%d", info[memcnt].age);
+
+		alramscreen_design();
+		printf("아이디를 입력하시오 : ");
+		scanf("%s", info[memcnt].id);
+		//+추가  중복된 아이디 입니다.
+		
+		while (1) 
+		{
+			alramscreen_design();
+			printf("비밀번호를 입력하시오 : ");
+			scanf("%s", info[memcnt].password);
+
+			alramscreen_design();
+			gotoxy(10, 4);
+			printf("비밀번호 확인을 위해 다시 입력해 주십시오 : ");
+			//비밀번호 확인을 위한 변수 password2
+			char password2[20];
+			scanf("%s", password2);
+
+			if (!strcmp(info[memcnt].password, password2)) { //!strcmp 문자열을 2개 서로 비교하는 함수 strncmp는 몇번째 까지 가능
+				alramscreen_design();
+				printf("비밀번호가 일치합니다");
+				Sleep(1000); //딜레이            
+				printf("%d", memcnt);
+				alramscreen_design();
+				printf("회원가입이 완료 되었습니다.");
+				info[memcnt].level = 1; //레벨점수 초기화
+				info[memcnt].score = 0;
+				memcnt++; // 이 사람수를 기준으로 회원가입을 만듬 이걸 증가시키면 다음회원가입하는 사람은 0 , 1 , 2 이런식으로 저장됨
+				Sleep(1000);
+				system("cls");
+				return; //여기서 리턴하면 한명회원가입되고 종료되는거임
+			}
+			alramscreen_design();
+			printf("비밀번호가 일치하지 않습니다\n");
+		}
+	}
+	else
+	{
+		alramscreen_design();
+		printf("회원가입 인원수를 초과하였습니다."); //100명제한 초과경우 회원가입을 거부함
+		Sleep(1000);
+		system("cls");
+		return;
+	}
+}
+
+
+int log_in()
+{
+	char log_in_id[20];
+	char log_in_password[20];
+
+	alramscreen_design();
+	printf("아이디 : ");
+	scanf("%s", log_in_id);
+
+	int found = findID(log_in_id); //아이디를 찾음
+	if (found == MAXMEMBER) {
+		//아이디를 못찾은경우
+		alramscreen_design();
+		printf("아이디가 일치하지 않습니다\n");
+		Sleep(1000);
+		alramscreen_design();
+		printf("메인화면으로 돌아갑니다.");
+		Sleep(1000);
+		system("cls");
+		return MAXMEMBER;
+	}
+	alramscreen_design();
+	printf("비밀번호 : ");
+	getpassword(log_in_password);
+	if (!strcmp(info[found].password, log_in_password)) {//해당사람의 정보가 있는 구조체 비밀번호와 얻은 것을 비교
+		alramscreen_design();
+		printf("성공적으로 로그인 되었습니다\n");
+		Sleep(1000);
+		system("cls");
+		//로그인성공
+		return found; // 들어가는 사람의 숫자를 반환한다.
+	}
+	alramscreen_design();
+	printf("비밀번호가 일치하지 않습니다\n");
+	Sleep(1000);
+	alramscreen_design();
+	printf("메인화면으로 돌아갑니다");
+	Sleep(1000);
+	system("cls");
+	return MAXMEMBER;
+}
 
 /*void rainking_input(int score, char name) { //랭크 입력
 FILE *rank;
@@ -318,115 +445,6 @@ sub:
 	//ranking(info[login].score,info[login].name);       // 랭킹 등록하기 이거 해결점;;   
 	//ranking_output();
 	//clear창 만들기 이후에 메인화면으로 돌아간다.
-}
-void gotoxy(int x, int y) //커서 보내는 함수
-{
-	COORD Pos = { x,y };
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
-}
-void join_member()//회원가입  //전역변수 info를 사용함
-{
-	//회원가입인원수가 100명 이하일때
-	if (memcnt < MAXMEMBER) {
-		alramscreen_design();
-		printf("이름을 입력하시오 : ");
-		scanf("%s", info[memcnt].name); //-> i대신 memcnt
-		if ((*info[memcnt].name >= 33) && (*info[memcnt].name <= 127))
-
-
-			alramscreen_design();
-		printf("성별을 입력하시오(남성/여성) : ");
-		scanf("%s", info[memcnt].sex);
-
-		alramscreen_design();
-		printf("나이를 입력하시오 : ");
-		scanf("%d", info[memcnt].age);
-
-		alramscreen_design();
-		printf("아이디를 입력하시오 : ");
-		scanf("%s", info[memcnt].id);
-		//+추가  중복된 아이디 입니다.
-		while (1) {
-			alramscreen_design();
-			printf("비밀번호를 입력하시오 : ");
-			scanf("%s", info[memcnt].password);
-
-			alramscreen_design();
-			gotoxy(10, 4);
-			printf("비밀번호 확인을 위해 다시 입력해 주십시오 : ");
-			//비밀번호 확인을 위한 변수 password2
-			char password2[20];
-			scanf("%s", password2);
-
-			if (!strcmp(info[memcnt].password, password2)) { //!strcmp 문자열을 2개 서로 비교하는 함수 strncmp는 몇번째 까지 가능
-				alramscreen_design();
-				printf("비밀번호가 일치합니다");
-				Sleep(1000); //딜레이            
-				printf("%d", memcnt);
-				alramscreen_design();
-				printf("회원가입이 완료 되었습니다.");
-				info[memcnt].level = 1; //레벨점수 초기화
-				info[memcnt].score = 0;
-				memcnt++; // 이 사람수를 기준으로 회원가입을 만듬 이걸 증가시키면 다음회원가입하는 사람은 0 , 1 , 2 이런식으로 저장됨
-				Sleep(1000);
-				system("cls");
-				return; //여기서 리턴하면 한명회원가입되고 종료되는거임
-			}
-			else
-				alramscreen_design();
-			printf("비밀번호가 일치하지 않습니다\n");
-		}
-	}
-	else
-	{
-		alramscreen_design();
-		printf("회원가입 인원수를 초과하였습니다."); //100명제한 초과경우 회원가입을 거부함
-		Sleep(1000);
-		system("cls");
-		return;
-	}
-
-}
-int log_in()
-{
-	char log_in_id[20];
-	char log_in_password[20];
-
-	alramscreen_design();
-	printf("아이디 : ");
-	scanf("%s", log_in_id);
-
-	int found = findID(log_in_id); //아이디를 찾음
-	if (found == MAXMEMBER) {
-		//아이디를 못찾은경우
-		alramscreen_design();
-		printf("아이디가 일치하지 않습니다\n");
-		Sleep(1000);
-		alramscreen_design();
-		printf("메인화면으로 돌아갑니다.");
-		Sleep(1000);
-		system("cls");
-		return MAXMEMBER;
-	}
-	alramscreen_design();
-	printf("비밀번호 : ");
-	getpassword(log_in_password);
-	if (!strcmp(info[found].password, log_in_password)) {//해당사람의 정보가 있는 구조체 비밀번호와 얻은 것을 비교
-		alramscreen_design();
-		printf("성공적으로 로그인 되었습니다\n");
-		Sleep(1000);
-		system("cls");
-		//로그인성공
-		return found; // 들어가는 사람의 숫자를 반환한다.
-	}
-	alramscreen_design();
-	printf("비밀번호가 일치하지 않습니다\n");
-	Sleep(1000);
-	alramscreen_design();
-	printf("메인화면으로 돌아갑니다");
-	Sleep(1000);
-	system("cls");
-	return MAXMEMBER;
 }
 //아이디를 찾는 함수
 int findID(char *tagetid) {
