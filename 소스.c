@@ -1,25 +1,17 @@
-﻿//github사용용123ㅍ123
-
 #pragma warning(disable:4996)
 #include <stdio.h>
 #include <string.h>
-#include <process.h>
+#include <process.h>//쓰레드사용
 #include <stdlib.h>//malloc, free 함수가 포함되있다.
 #include <windows.h>//커서위치
 #include <conio.h>//sleep함수 포함
 #include<time.h>//rand함수를 제대로 하기위함
 
-
-#define MAXMEMBER 100  //최대 100명
-#define MAXSCORE 30
-#define MAXLEVEL 5
-#define MAXWORD 100
-
 unsigned int WINAPI key(void *arg);
 unsigned long ThreadID;
 HANDLE Thread;
 
-struct member  //구조체를 이용한 회원가입 정보
+struct member //구조체를 이용한 회원가입 정보
 {
 	char name[10];
 	char sex[10];
@@ -29,16 +21,32 @@ struct member  //구조체를 이용한 회원가입 정보
 	int level;
 	int score;
 };
+
 enum state // 열거형 숫자가 하나씩 올라간다 unshow = 0 이면 show =1 disalbe = 2이다. 직접 지정도 가능
 {
-	unshow = 0,
-	show,
-	disable,
+    unshow = 0,
+    show,
+    disable,
 };
-struct word { //내려오는 단어 위치
+
+struct word //내려오는 단어 위치
+{ 
 	int x, y;
 	enum state s;
 };
+
+int memcnt = 0; //사람수
+
+const int MAXMEMBER = 100;  //최대 100명
+const int MAXWORD = 100;
+const int MAXSCORE = 30;
+const int MAXLEVEL = 5;
+
+struct member info[MAXMEMBER]; //회원정보 저장 배열 생성
+char words_out[MAXWORD][10];
+struct word loc[MAXWORD];
+int word_count = 0;
+
 
 void exit(char);
 void ranking(int, char);
@@ -60,25 +68,15 @@ void alramscreen_design();//알람 디자인
 void rainking_design();//랭킹 디자인
 int printword(int);
 
-int memcnt = 0; //사람수
-
-struct member info[MAXMEMBER]; //회원정보 저장 배열 생성
-char words_out[MAXWORD][10];
-struct word loc[MAXWORD];
-int word_count = 0;
-
-
-
 int main()
 {
 	main_screen();//메인스크린 호출
 }
 
-
 int main_screen()
 {
 	int login = MAXMEMBER; // 현재 로그인된 사용자 정보초기화
-	while (1)
+	while(1)
 	{
 		//struct member info[100]; //100가입할수있게함
 		mainscreen_design();
@@ -175,13 +173,11 @@ int main_screen()
 	}
 }
 
-
 void gotoxy(int x, int y) //커서 보내는 함수
 {
-	COORD Pos = { x,y };
+	COORD Pos = { x,y };  // ??
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
-
 
 void join_member()//회원가입  //전역변수 info를 사용함
 {
@@ -291,6 +287,14 @@ int log_in()
 	return MAXMEMBER;
 }
 
+//아이디를 찾는 함수
+int findID(char *tagetid) {
+	for (int i = 0; i < memcnt; i++) {
+		if (!strcmp(info[i].id, tagetid))
+			return i; //아이디를 찾아서 인덱스를 리턴
+	}
+	return MAXMEMBER; //아이디를 못찾은경우
+}
 
 void getpassword(char *buf)
 {
@@ -321,18 +325,10 @@ sub:
 	gamebasic_design();
 	start(login);
 	printword(login);
-	if (info[login].level != 5) goto sub;
+	//if (info[login].level != 5) goto sub;
 	//ranking(info[login].score,info[login].name);       // 랭킹 등록하기 이거 해결점;;   
 	//ranking_output();
 	//clear창 만들기 이후에 메인화면으로 돌아간다.
-}
-//아이디를 찾는 함수
-int findID(char *tagetid) {
-	for (int i = 0; i < memcnt; i++) {
-		if (!strcmp(info[i].id, tagetid))
-			return i; //아이디를 찾아서 인덱스를 리턴
-	}
-	return MAXMEMBER; //아이디를 못찾은경우
 }
 
 
@@ -348,16 +344,17 @@ void start(int login)
 	}
 }
 
-
 int printword(int login) {
 	int printindex = 0, i;
 	gamebasic_design();
 	
 	Thread = (HANDLE)_beginthreadex(NULL, 0, key, (void*)NULL, 0, (unsigned*)&ThreadID);  //thread 사용
-	fileread(login);
+	fileread(login); // 파일 단어가 words_out에 저장됨 return int인데 받는값 없음
 	while (1) { //레벨 업 할때 까지 반복
 		if (printindex >= word_count)
-			printindex = 0;
+		{
+            printindex = 0;
+        }
 		loc[printindex].y = 1;
 		loc[printindex].s = show; // 단어 추가
 							//한칸씩 미루면서 출력(보여져있는 단어만)
@@ -439,9 +436,7 @@ int fileread(int login) // 파일 읽는 함수
 
 /*void rainking_input(int score, char name) { //랭크 입력
 FILE *rank;
-
 rank = fopen("ranking.txt", "w+");
-
 if (rank == NULL) {
 puts("Rank와 연결이 되지 않습니다.");
 }
@@ -449,7 +444,6 @@ for (int i = 0; i < MAXMEMBER; i++) {    //이것도 손봐야됨
 fprintf(rank, "%s %d\n", info[i].name, info[i].score);
 }
 fclose(rank);
-
 }*/
 
 /*사용되질않는 왜존재하는지 모르는함수 */
